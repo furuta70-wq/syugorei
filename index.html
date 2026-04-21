@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>守護霊カードメーカー</title>
+<title>カードメイカー</title>
 <style>
 :root{
   --bg:#ece8df;
@@ -52,7 +52,7 @@ body{
 label,.group-title{
   display:block;
   margin-bottom:6px;
-  font-size:12px;
+  font-size:14px;
   font-weight:700;
   letter-spacing:.06em;
   color:#876f53;
@@ -72,7 +72,7 @@ input[type="text"]:focus, textarea:focus{
   border-color:#b7dfe4;
   box-shadow:0 0 0 3px rgba(136,210,219,.16), inset 0 1px 2px rgba(255,255,255,.8);
 }
-textarea{min-height:156px;resize:none;line-height:1.6}
+textarea{min-height:156px;resize:none;line-height:1.65}
 input[type="file"]{
   width:100%;
   padding:10px;
@@ -99,7 +99,7 @@ input[type="range"]{width:100%;accent-color:#86cfd4}
   gap:10px;align-items:center;min-height:46px;margin-bottom:6px;
 }
 .stat-name{
-  width:100%;padding:9px 12px;font-size:12px;border-radius:18px;
+  width:100%;padding:9px 12px;font-size:14.8px;border-radius:18px;
   border:1px solid #d7cfc3;background:rgba(255,255,255,.72);color:var(--ui-text)
 }
 .spirit-dots{display:flex;gap:6px;align-items:center;justify-content:flex-start;min-width:130px}
@@ -122,7 +122,7 @@ input[type="range"]{width:100%;accent-color:#86cfd4}
     linear-gradient(180deg, rgba(185,236,240,.98), rgba(132,207,212,.86));
   box-shadow: inset 0 -2px 4px rgba(70,145,150,.22), 0 0 0 2px rgba(255,255,255,.38), 0 5px 12px rgba(117,191,196,.25);
 }
-.stat-value{text-align:right;font-size:14px;color:#8f7b5d;min-width:30px}
+.stat-value{text-align:right;font-size:19px;color:#8f7b5d;min-width:36px}
 .actions{display:flex;gap:8px;margin-top:12px}
 button{
   appearance:none;border:none;border-radius:16px;padding:11px 14px;font-size:13px;font-weight:700;cursor:pointer;
@@ -219,7 +219,7 @@ const defaultLabels = {
   bedhead: '寝癖',
 };
 const CENTER_X = 500;
-const PHOTO_FRAME = { x: 172, y: 300, w: 656, h: 500 };
+const PHOTO_FRAME = { x: 172, y: 280, w: 656, h: 500 };
 
 const state = {
   name: 'タンキュ',
@@ -302,10 +302,10 @@ function getNameFontSize(name) {
 }
 function getLabelFontSize(label) {
   const len = [...label].length;
-  if (len <= 4) return 14.6;
-  if (len <= 6) return 12.8;
-  if (len <= 8) return 11.2;
-  return 10.4;
+  if (len <= 4) return 16.8;
+  if (len <= 6) return 14.8;
+  if (len <= 8) return 12.8;
+  return 11.6;
 }
 function pointOnCircle(cx, cy, r, angleDeg) {
   const rad = (angleDeg * Math.PI) / 180;
@@ -313,9 +313,9 @@ function pointOnCircle(cx, cy, r, angleDeg) {
 }
 function getRadarGeometry() {
   return {
-    cx: 330,
-    cy: 182,
-    maxR: 104,
+    cx: 350,
+    cy: 201,
+    maxR: 120,
     angles: [-90, -45, 0, 45, 90, 135, 180, 225],
     labels: [
       state.statLabels.wisdom || '知恵',
@@ -370,16 +370,17 @@ function buildRadarSvg() {
 
   return `
     <g>
-      <path d="${curvedPlatePath(18,18,624,340,24,10)}" fill="rgba(255,255,255,0.86)" stroke="rgba(202,193,183,0.76)" stroke-width="1.1" />
-      <path d="M44 32c62 -16 502 -16 572 0" fill="none" stroke="rgba(59,84,122,0.14)" stroke-width="2.1" />
-      <path d="M56 48h548" fill="none" stroke="rgba(120,201,214,0.18)" stroke-width="3" />
-      <path d="M60 328h540" fill="none" stroke="rgba(59,84,122,0.08)" stroke-width="2.2" />
-      <text x="${cx}" y="14" text-anchor="middle" font-size="24" fill="#31496f" letter-spacing="0.14em">GUARDIAN STATUS</text>
-      <circle cx="${cx}" cy="${cy}" r="${maxR + 22}" fill="rgba(255,255,255,0.24)" stroke="rgba(79,101,137,0.14)" stroke-width="1.2" />
+      <path d="${curvedPlatePath(18,18,664,380,24,10)}" fill="rgba(255,255,255,0.86)" stroke="rgba(202,193,183,0.76)" stroke-width="1.1" />
+      <path d="M44 32c68 -16 532 -16 604 0" fill="none" stroke="rgba(59,84,122,0.14)" stroke-width="2.1" />
+      <path d="M56 48h588" fill="none" stroke="rgba(120,201,214,0.18)" stroke-width="3" />
+      <path d="M60 364h580" fill="none" stroke="rgba(59,84,122,0.08)" stroke-width="2.2" />
+      <text x="${cx}" y="14" text-anchor="middle" font-size="29" fill="#31496f" letter-spacing="0.14em">GUARDIAN STATUS</text>
+      <circle cx="${cx}" cy="${cy}" r="${maxR + 22}" fill="rgba(255,255,255,0.28)" stroke="rgba(79,101,137,0.14)" stroke-width="1.2" />
+      <circle cx="${cx}" cy="${cy}" r="${maxR + 6}" fill="none" stroke="url(#prismLine)" stroke-width="1.3" opacity="0.48" />
       <circle cx="${cx}" cy="${cy}" r="${maxR + 12}" fill="none" stroke="rgba(160,216,222,0.20)" stroke-width="1.3" />
       ${grid}
       ${axes}
-      <polygon class="radar-poly" points="${polygonPoints}" fill="rgba(82,145,199,0.22)" stroke="rgba(61,103,168,0.76)" stroke-width="2.4" />
+      <polygon class="radar-poly" points="${polygonPoints}" fill="rgba(112,182,255,0.26)" stroke="rgba(72,116,216,0.86)" stroke-width="2.8" />
       ${markers}
       <circle cx="${cx}" cy="${cy}" r="3.5" fill="#4c5e7b" />
       ${labelsSvg}
@@ -396,7 +397,7 @@ function buildPhotoBlock() {
         <path d="M440 530l60-60 44 42 88-92 92 124" fill="none" stroke="rgba(125,194,201,0.74)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
         <circle cx="482" cy="442" r="72" fill="none" stroke="rgba(181,160,116,0.36)" stroke-width="4"/>
       </g>
-      <text x="500" y="628" text-anchor="middle" font-size="33" fill="#5f5448">作品写真を配置</text>
+      
     `;
   }
   const x = CENTER_X + state.offsetX;
@@ -418,7 +419,7 @@ function renderCard() {
   const nameW = 760, nameX = centeredX(nameW);
   const photoOuterW = 760, photoOuterX = centeredX(photoOuterW);
   const photoInnerW = 736, photoInnerX = centeredX(photoInnerW);
-  const radarW = 660, radarX = centeredX(radarW);
+  const radarW = 700, radarX = centeredX(radarW);
   const descW = 760, descX = centeredX(descW);
   const bandW = 608, bandX = centeredX(bandW);
 
@@ -431,10 +432,27 @@ function renderCard() {
   els.cardSvg.innerHTML = `
     <defs>
       <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#fbf8f2"/>
-        <stop offset="34%" stop-color="#f4eee3"/>
-        <stop offset="68%" stop-color="#ece5d8"/>
-        <stop offset="100%" stop-color="#e3dacb"/>
+        <stop offset="0%" stop-color="#fffaf2"/>
+        <stop offset="22%" stop-color="#f5efe1"/>
+        <stop offset="56%" stop-color="#e8e9ef"/>
+        <stop offset="100%" stop-color="#ddd7cb"/>
+      </linearGradient>
+      <radialGradient id="auraGold" cx="50%" cy="0%" r="82%">
+        <stop offset="0%" stop-color="rgba(255,232,179,0.44)"/>
+        <stop offset="45%" stop-color="rgba(255,232,179,0.10)"/>
+        <stop offset="100%" stop-color="rgba(255,232,179,0)"/>
+      </radialGradient>
+      <radialGradient id="auraBlue" cx="50%" cy="100%" r="88%">
+        <stop offset="0%" stop-color="rgba(112,181,255,0.22)"/>
+        <stop offset="42%" stop-color="rgba(112,181,255,0.06)"/>
+        <stop offset="100%" stop-color="rgba(112,181,255,0)"/>
+      </radialGradient>
+      <linearGradient id="prismLine" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="rgba(117,212,230,0.0)"/>
+        <stop offset="0.18" stop-color="rgba(117,212,230,0.55)"/>
+        <stop offset="0.52" stop-color="rgba(255,226,163,0.68)"/>
+        <stop offset="0.82" stop-color="rgba(117,212,230,0.55)"/>
+        <stop offset="1" stop-color="rgba(117,212,230,0.0)"/>
       </linearGradient>
       <linearGradient id="navySheen" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stop-color="rgba(31,50,84,0.22)"/>
@@ -493,6 +511,9 @@ function renderCard() {
       <filter id="softShadow" x="-20%" y="-20%" width="160%" height="160%">
         <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="rgba(131,117,95,0.10)" />
       </filter>
+      <filter id="glowSoft" x="-30%" y="-30%" width="200%" height="200%">
+        <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgba(255,221,150,0.26)" />
+      </filter>
     </defs>
     <style>
       .radar-poly{
@@ -508,31 +529,45 @@ function renderCard() {
     <g filter="url(#cardShadow)">
       <g clip-path="url(#cardClip)">
         <rect x="0" y="0" width="1000" height="1400" rx="42" fill="url(#bgGrad)"/>
+        <rect x="0" y="0" width="1000" height="1400" rx="42" fill="url(#auraGold)" opacity="0.92"/>
+        <rect x="0" y="0" width="1000" height="1400" rx="42" fill="url(#auraBlue)" opacity="0.86"/>
         <rect x="0" y="0" width="1000" height="1400" rx="42" fill="url(#dotGrid)" opacity="0.55"/>
-        <rect x="0" y="0" width="1000" height="1400" rx="42" fill="url(#skyGlass)" opacity="0.12"/>
+        <rect x="0" y="0" width="1000" height="1400" rx="42" fill="url(#skyGlass)" opacity="0.16"/>
         <rect x="0" y="0" width="1000" height="1400" rx="42" fill="url(#navySheen)" opacity="0.78"/>
+        <path d="M-24 258c220 -62 396 -54 576 -6c112 30 288 34 472 -18" fill="none" stroke="url(#prismLine)" stroke-width="18" stroke-linecap="round" opacity="0.56"/>
+        <path d="M-30 1154c230 -50 390 -42 566 -4c126 28 292 32 488 -14" fill="none" stroke="url(#prismLine)" stroke-width="14" stroke-linecap="round" opacity="0.42"/>
 
         <rect x="0" y="0" width="1000" height="130" fill="rgba(34,53,82,0.10)"/>
-        <rect x="0" y="1308" width="1000" height="116" fill="rgba(34,53,82,0.09)"/>
+        <rect x="0" y="1325" width="1000" height="116" fill="rgba(34,53,82,0.09)"/>
         <path d="M-24 118c180 -66 410 -74 672 -18c104 22 222 24 376 -8" fill="none" stroke="rgba(89,126,188,0.28)" stroke-width="16" stroke-linecap="round"/>
         <path d="M-30 154c182 -62 406 -62 664 -8c130 28 254 30 392 8" fill="none" stroke="rgba(255,255,255,0.74)" stroke-width="24" stroke-linecap="round"/>
         <path d="M-30 190c176 -54 396 -54 652 -4c146 28 270 28 404 4" fill="none" stroke="rgba(34,53,82,0.14)" stroke-width="8" stroke-linecap="round"/>
         <path d="M92 96h816" fill="none" stroke="url(#navyLine)" stroke-width="2.4" opacity="0.78"/>
         <path d="M92 1304h816" fill="none" stroke="url(#navyLine)" stroke-width="2.4" opacity="0.56"/>
 
-        <rect x="22" y="22" width="956" height="1356" rx="38" fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="3"/>
-        <rect x="36" y="36" width="928" height="1328" rx="34" fill="none" stroke="url(#goldLine)" stroke-width="2.5"/>
-        <rect x="44" y="44" width="912" height="1312" rx="32" fill="none" stroke="rgba(34,53,82,0.18)" stroke-width="1.2"/>
-        <rect x="52" y="52" width="896" height="1296" rx="30" fill="none" stroke="rgba(207,198,184,0.56)" stroke-width="1.6"/>
+        <rect x="22" y="22" width="956" height="1356" rx="38" fill="none" stroke="rgba(255,255,255,0.90)" stroke-width="3.4"/>
+        <rect x="30" y="30" width="940" height="1340" rx="36" fill="none" stroke="url(#prismLine)" stroke-width="2.8" opacity="0.76"/>
+        <rect x="36" y="36" width="928" height="1328" rx="34" fill="none" stroke="url(#goldLine)" stroke-width="2.8"/>
+        <rect x="44" y="44" width="912" height="1312" rx="32" fill="none" stroke="rgba(34,53,82,0.22)" stroke-width="1.3"/>
+        <rect x="52" y="52" width="896" height="1296" rx="30" fill="none" stroke="rgba(207,198,184,0.62)" stroke-width="1.7"/>
         <path d="M116 86h768" fill="none" stroke="url(#navyAccent)" stroke-width="3.6" stroke-linecap="round" opacity="0.92"/>
         <path d="M138 72h724" fill="none" stroke="url(#goldAccent)" stroke-width="1.8" stroke-linecap="round" opacity="0.75"/>
         <path d="M116 1278h768" fill="none" stroke="url(#goldAccent)" stroke-width="3.2" stroke-linecap="round" opacity="0.78"/>
+        <g opacity="0.62" filter="url(#glowSoft)">
+          <path d="M128 92l10 0 M133 87l0 10 M126 85l14 14 M126 99l14 -14" stroke="rgba(255,225,160,0.72)" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M872 100l10 0 M877 95l0 10 M870 93l14 14 M870 107l14 -14" stroke="rgba(117,212,230,0.70)" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M146 1290l8 0 M150 1286l0 8 M145 1285l10 10 M145 1295l10 -10" stroke="rgba(255,225,160,0.52)" stroke-width="1.1" stroke-linecap="round"/>
+          <path d="M846 1288l8 0 M850 1284l0 8 M845 1283l10 10 M845 1293l10 -10" stroke="rgba(117,212,230,0.48)" stroke-width="1.1" stroke-linecap="round"/>
+        </g>
         <path d="M138 1294h724" fill="none" stroke="url(#navyAccent)" stroke-width="1.8" stroke-linecap="round" opacity="0.62"/>
         <path d="M146 108c74 -18 238 -22 354 -10" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="3" stroke-linecap="round"/>
         <path d="M854 108c-74 -18 -238 -22 -354 -10" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="3" stroke-linecap="round"/>
-        <path d="M428 60c20 -8 124 -8 144 0v18c-18 6 -126 6 -144 0z" fill="rgba(255,255,255,0.32)" stroke="rgba(168,139,88,0.44)" stroke-width="1.1"/>
-        <path d="M442 68h116" fill="none" stroke="url(#navyAccent)" stroke-width="1.6" stroke-linecap="round" opacity="0.8"/>
-        <circle cx="500" cy="69" r="3.2" fill="rgba(168,139,88,0.72)"/>
+        <path d="M382 56c26 -10 210 -10 236 0v28c-24 8 -212 8 -236 0z" fill="rgba(255,255,255,0.54)" stroke="rgba(168,139,88,0.44)" stroke-width="1.1"/>
+        <path d="M394 60h212" fill="none" stroke="url(#prismLine)" stroke-width="2.1" stroke-linecap="round" opacity="0.82"/>
+        <path d="M400 64h200" fill="none" stroke="url(#navyAccent)" stroke-width="1.5" stroke-linecap="round" opacity="0.72"/>
+        <path d="M412 78h176" fill="none" stroke="url(#goldAccent)" stroke-width="1.1" stroke-linecap="round" opacity="0.62"/>
+        <circle cx="500" cy="70" r="3" fill="rgba(168,139,88,0.74)"/>
+        <text x="500" y="75" text-anchor="middle" font-size="13.5" fill="#41567b" letter-spacing="0.18em">SCHOOL SPIRIT SERIES</text>
         <path d="M428 1318c20 8 124 8 144 0v-18c-18 -6 -126 -6 -144 0z" fill="rgba(255,255,255,0.22)" stroke="rgba(168,139,88,0.34)" stroke-width="1.1"/>
         <path d="M442 1310h116" fill="none" stroke="url(#goldAccent)" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
         <circle cx="500" cy="1309" r="3.2" fill="rgba(49,76,122,0.62)"/>
@@ -554,14 +589,15 @@ function renderCard() {
         </g>
 
         <g filter="url(#softShadow)">
-          <path d="${curvedPlatePath(photoOuterX, 252, photoOuterW, 584, 30, 10)}" fill="url(#frameGrad)" stroke="rgba(207,198,184,0.72)" stroke-width="1.8"/>
-          <rect x="${photoInnerX}" y="264" width="${photoInnerW}" height="544" rx="30" fill="rgba(255,255,255,0.50)" stroke="rgba(255,255,255,0.72)" stroke-width="1.6"/>
+          <path d="${curvedPlatePath(photoOuterX, 232, photoOuterW, 584, 30, 10)}" fill="url(#frameGrad)" stroke="rgba(207,198,184,0.72)" stroke-width="1.8"/>
+          <rect x="${photoInnerX}" y="244" width="${photoInnerW}" height="544" rx="30" fill="rgba(255,255,255,0.50)" stroke="rgba(255,255,255,0.72)" stroke-width="1.6"/>
           <rect x="${PHOTO_FRAME.x}" y="${PHOTO_FRAME.y}" width="${PHOTO_FRAME.w}" height="${PHOTO_FRAME.h}" rx="24" fill="rgba(243,237,229,0.88)" stroke="rgba(210,200,187,0.76)" stroke-width="1.6"/>
           <rect x="${PHOTO_FRAME.x+4}" y="${PHOTO_FRAME.y+4}" width="${PHOTO_FRAME.w-8}" height="${PHOTO_FRAME.h-8}" rx="21" fill="rgba(36,58,99,0.06)"/>
           <rect x="${PHOTO_FRAME.x+8}" y="${PHOTO_FRAME.y+8}" width="${PHOTO_FRAME.w-16}" height="${PHOTO_FRAME.h-16}" rx="18" fill="none" stroke="rgba(48,70,108,0.34)" stroke-width="1.2"/>
           <rect x="${PHOTO_FRAME.x+16}" y="${PHOTO_FRAME.y+16}" width="${PHOTO_FRAME.w-32}" height="${PHOTO_FRAME.h-32}" rx="14" fill="none" stroke="rgba(215,193,151,0.34)" stroke-width="1"/>
           ${buildPhotoBlock()}
           <rect x="${PHOTO_FRAME.x}" y="${PHOTO_FRAME.y}" width="${PHOTO_FRAME.w}" height="${PHOTO_FRAME.h}" rx="24" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.34)" stroke-width="0.8"/>
+          <path d="M${PHOTO_FRAME.x+36} ${PHOTO_FRAME.y+18}L${PHOTO_FRAME.x+180} ${PHOTO_FRAME.y+18}L${PHOTO_FRAME.x+86} ${PHOTO_FRAME.y+122}L${PHOTO_FRAME.x+18} ${PHOTO_FRAME.y+122}Z" fill="rgba(255,255,255,0.13)"/>
           <path d="M${PHOTO_FRAME.x+24} ${PHOTO_FRAME.y+20}h${700-48}" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="1.8" stroke-linecap="round"/>
           <path d="M${PHOTO_FRAME.x+26} ${PHOTO_FRAME.y+482}h${PHOTO_FRAME.w-52}" fill="none" stroke="rgba(36,58,99,0.10)" stroke-width="2.2" stroke-linecap="round"/>
           <path d="M170 282h110" stroke="rgba(49,76,122,0.68)" stroke-width="2.4" stroke-linecap="round"/>
@@ -572,24 +608,19 @@ function renderCard() {
           <path d="M140 314c64 -34 656 -34 720 0" fill="none" stroke="rgba(49,76,122,0.10)" stroke-width="6"/>
         </g>
 
-        <g transform="translate(${radarX} 846)" filter="url(#softShadow)">
+        <g transform="translate(${radarX} 830)" filter="url(#softShadow)">
           ${buildRadarSvg()}
         </g>
 
         <g filter="url(#softShadow)">
-          <path d="${curvedPlatePath(descX, 1210, descW, 132, 24, 9)}" fill="rgba(255,255,255,0.82)" stroke="rgba(207,198,184,0.70)" stroke-width="1.3"/>
-          <path d="M${descX+28} 1228c82 -8 480 -8 644 0" fill="none" stroke="rgba(49,76,122,0.24)" stroke-width="2"/>
-          <path d="M${descX+28} 1242h644" fill="none" stroke="rgba(135,205,215,0.24)" stroke-width="3" />
-          <text x="${descTextX}" y="1268" text-anchor="start" font-size="24" fill="#4d5c76">${escapeXml(descLines[0] || '')}</text>
-          <text x="${descTextX}" y="1308" text-anchor="start" font-size="24" fill="#4d5c76">${escapeXml(descLines[1] || '')}</text>
+          <path d="${curvedPlatePath(descX, 1230, descW, 132, 24, 9)}" fill="rgba(255,255,255,0.82)" stroke="rgba(207,198,184,0.70)" stroke-width="1.3"/>
+          <path d="M${descX+28} 1248c82 -8 480 -8 644 0" fill="none" stroke="rgba(49,76,122,0.24)" stroke-width="2"/>
+          <path d="M${descX+28} 1262h644" fill="none" stroke="rgba(135,205,215,0.24)" stroke-width="3" />
+          <text x="${descTextX}" y="1287" text-anchor="start" font-size="24" fill="#4d5c76">${escapeXml(descLines[0] || '')}</text>
+          <text x="${descTextX}" y="1328" text-anchor="start" font-size="24" fill="#4d5c76">${escapeXml(descLines[1] || '')}</text>
         </g>
 
-        <g>
-          <path d="M150 1340c54 8 138 10 350 10c212 0 296 -2 350 -10" fill="none" stroke="rgba(61,91,135,0.16)" stroke-width="2"/>
-          <path d="M178 1362c62 -8 644 -8 644 0" fill="none" stroke="rgba(82,145,199,0.22)" stroke-width="8" stroke-linecap="round"/>
-          <rect x="${bandX}" y="1352" width="${bandW}" height="28" rx="12" fill="rgba(255,255,255,0.72)" stroke="rgba(207,198,184,0.46)" stroke-width="1"/>
-          <text x="${CENTER_X}" y="1371" text-anchor="middle" font-size="18" fill="#41567b" letter-spacing="0.20em">SCHOOL SPIRIT SERIES</text>
-        </g>
+
       </g>
     </g>
   `;
