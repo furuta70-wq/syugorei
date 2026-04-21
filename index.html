@@ -32,8 +32,8 @@ body{
   height:min(600px, calc(100vh - 24px));
   margin:12px auto;
   display:grid;
-  grid-template-columns:320px minmax(0,1fr);
-  gap:18px;
+  grid-template-columns:420px minmax(0,1fr);
+  gap:12px;
   padding:12px;
 }
 .controls{
@@ -90,21 +90,21 @@ input[type="range"]{width:100%;accent-color:#86cfd4}
 .stats-editor{
   border:1px solid rgba(207,198,184,.78);
   border-radius:24px;
-  padding:12px 12px 8px;
+  padding:14px 14px 10px;
   background:linear-gradient(180deg, rgba(255,255,255,.58), rgba(247,243,237,.9));
 }
 .stat-row{
   display:grid;
-  grid-template-columns:96px minmax(0,1fr) 20px;
-  gap:8px;align-items:center;min-height:44px;margin-bottom:6px;
+  grid-template-columns:112px minmax(130px,1fr) 30px;
+  gap:10px;align-items:center;min-height:46px;margin-bottom:6px;
 }
 .stat-name{
-  width:100%;padding:9px 10px;font-size:12px;border-radius:18px;
+  width:100%;padding:9px 12px;font-size:12px;border-radius:18px;
   border:1px solid #d7cfc3;background:rgba(255,255,255,.72);color:var(--ui-text)
 }
-.spirit-dots{display:flex;gap:6px;align-items:center}
+.spirit-dots{display:flex;gap:6px;align-items:center;justify-content:flex-start;min-width:130px}
 .spirit-dot{
-  width:24px;height:24px;border-radius:50%;
+  width:24px;height:24px;flex:0 0 24px;border-radius:50%;
   border:1px solid rgba(170,185,185,.45);
   background:
     radial-gradient(circle at 30% 28%, rgba(255,255,255,.94), rgba(255,255,255,.30) 26%, rgba(158,228,233,.08) 28%),
@@ -122,7 +122,7 @@ input[type="range"]{width:100%;accent-color:#86cfd4}
     linear-gradient(180deg, rgba(185,236,240,.98), rgba(132,207,212,.86));
   box-shadow: inset 0 -2px 4px rgba(70,145,150,.22), 0 0 0 2px rgba(255,255,255,.38), 0 5px 12px rgba(117,191,196,.25);
 }
-.stat-value{text-align:right;font-size:14px;color:#8f7b5d}
+.stat-value{text-align:right;font-size:14px;color:#8f7b5d;min-width:30px}
 .actions{display:flex;gap:8px;margin-top:12px}
 button{
   appearance:none;border:none;border-radius:16px;padding:11px 14px;font-size:13px;font-weight:700;cursor:pointer;
@@ -134,7 +134,7 @@ button.secondary{
   border:1px solid #dbd2c6;box-shadow:0 8px 16px rgba(130,120,100,.08), inset 0 1px 0 rgba(255,255,255,.9);
 }
 .preview-area{min-width:0;display:flex;justify-content:center;align-items:flex-start}
-.preview-shell{width:min(100%, 680px)}
+.preview-shell{width:min(100%, 380px)}
 .preview-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .preview-head .title{font-size:15px;font-weight:700;color:#6b5a46;letter-spacing:.06em}
 .card-stage{
@@ -165,7 +165,7 @@ button.secondary{
 
     <section class="field-group">
       <label for="descInput">説明</label>
-      <textarea id="descInput" maxlength="80">どんな謎でも解き明かさずにはいられない。</textarea>
+      <textarea id="descInput" maxlength="50">どんな謎でも解き明かさずにはいられない。</textarea>
     </section>
 
     <section class="field-group">
@@ -207,24 +207,26 @@ button.secondary{
 </div>
 
 <script>
-const statsKeys = ['wisdom','bravery','empathy','creation','cooperation','action'];
+const statsKeys = ['wisdom','bravery','empathy','action','cooperation','creation','guts','bedhead'];
 const defaultLabels = {
   wisdom: '知恵',
   bravery: '勇気',
   empathy: '共感',
-  creation: '創造',
-  cooperation: '協力',
   action: '行動',
+  cooperation: '協力',
+  creation: '創造',
+  guts: '根性',
+  bedhead: '寝癖',
 };
 const CENTER_X = 500;
-const PHOTO_FRAME = { x: 150, y: 300, w: 700, h: 500 };
+const PHOTO_FRAME = { x: 172, y: 300, w: 656, h: 500 };
 
 const state = {
   name: 'タンキュ',
   desc: 'どんな謎でも解き明かさずにはいられない。',
   statLabels: { ...defaultLabels },
-  stats: { wisdom:3, bravery:3, empathy:3, creation:3, cooperation:3, action:3 },
-  displayStats: { wisdom:3, bravery:3, empathy:3, creation:3, cooperation:3, action:3 },
+  stats: { wisdom:3, bravery:3, empathy:3, action:3, cooperation:3, creation:3, guts:3, bedhead:3 },
+  displayStats: { wisdom:3, bravery:3, empathy:3, action:3, cooperation:3, creation:3, guts:3, bedhead:3 },
   imageDataUrl: '',
   zoom: 1,
   rotation: 0,
@@ -300,10 +302,10 @@ function getNameFontSize(name) {
 }
 function getLabelFontSize(label) {
   const len = [...label].length;
-  if (len <= 4) return 15;
-  if (len <= 6) return 13;
-  if (len <= 8) return 11.5;
-  return 10.5;
+  if (len <= 4) return 14.6;
+  if (len <= 6) return 12.8;
+  if (len <= 8) return 11.2;
+  return 10.4;
 }
 function pointOnCircle(cx, cy, r, angleDeg) {
   const rad = (angleDeg * Math.PI) / 180;
@@ -313,8 +315,8 @@ function getRadarGeometry() {
   return {
     cx: 330,
     cy: 182,
-    maxR: 110,
-    angles: [-90, -30, 30, 90, 150, 210],
+    maxR: 104,
+    angles: [-90, -45, 0, 45, 90, 135, 180, 225],
     labels: [
       state.statLabels.wisdom || '知恵',
       state.statLabels.bravery || '勇気',
@@ -322,8 +324,10 @@ function getRadarGeometry() {
       state.statLabels.action || '行動',
       state.statLabels.cooperation || '協力',
       state.statLabels.creation || '創造',
+      state.statLabels.guts || '根性',
+      state.statLabels.bedhead || '寝癖',
     ],
-    keys: ['wisdom','bravery','empathy','action','cooperation','creation'],
+    keys: ['wisdom','bravery','empathy','action','cooperation','creation','guts','bedhead'],
   };
 }
 function radarPolygonPoints(stats = state.displayStats) {
@@ -351,10 +355,10 @@ function buildRadarSvg() {
   let labelsSvg = '';
   angles.forEach((a, i) => {
     const outer = pointOnCircle(cx, cy, maxR, a);
-    const labelPoint = pointOnCircle(cx, cy, maxR + 36, a);
+    const labelPoint = pointOnCircle(cx, cy, maxR + 30, a);
     const anchor = Math.abs(labelPoint.x - cx) < 8 ? 'middle' : labelPoint.x > cx ? 'start' : 'end';
     axes += `<line x1="${cx}" y1="${cy}" x2="${outer.x}" y2="${outer.y}" stroke="rgba(71,96,138,0.30)" stroke-width="1.1" />`;
-    labelsSvg += `<text x="${labelPoint.x}" y="${labelPoint.y + 5}" text-anchor="${anchor}" font-size="14.5" fill="#425674">${escapeXml(labels[i] || '')}</text>`;
+    labelsSvg += `<text x="${labelPoint.x}" y="${labelPoint.y + 5}" text-anchor="${anchor}" font-size="${getLabelFontSize(labels[i] || '')}" fill="#425674">${escapeXml(labels[i] || '')}</text>`;
   });
 
   const polygonPoints = radarPolygonPoints(state.displayStats);
@@ -408,14 +412,14 @@ function buildPhotoBlock() {
 
 function renderCard() {
   const name = (state.name || '').trim() || '守護霊の名前';
-  const descLines = wrapTextByCount(state.desc, 22, 2);
+  const descLines = wrapTextByCount(state.desc, 25, 2);
   const nameSize = getNameFontSize(name);
 
   const nameW = 760, nameX = centeredX(nameW);
-  const photoOuterW = 768, photoOuterX = centeredX(photoOuterW);
-  const photoInnerW = 744, photoInnerX = centeredX(photoInnerW);
+  const photoOuterW = 760, photoOuterX = centeredX(photoOuterW);
+  const photoInnerW = 736, photoInnerX = centeredX(photoInnerW);
   const radarW = 660, radarX = centeredX(radarW);
-  const descW = 700, descX = centeredX(descW);
+  const descW = 760, descX = centeredX(descW);
   const bandW = 608, bandX = centeredX(bandW);
 
   els.cardSvg.innerHTML = `
@@ -553,7 +557,7 @@ function renderCard() {
           ${buildPhotoBlock()}
           <rect x="${PHOTO_FRAME.x}" y="${PHOTO_FRAME.y}" width="${PHOTO_FRAME.w}" height="${PHOTO_FRAME.h}" rx="24" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.34)" stroke-width="0.8"/>
           <path d="M${PHOTO_FRAME.x+24} ${PHOTO_FRAME.y+20}h${700-48}" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="1.8" stroke-linecap="round"/>
-          <path d="M${PHOTO_FRAME.x+26} ${PHOTO_FRAME.y+482}h${700-52}" fill="none" stroke="rgba(36,58,99,0.10)" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M${PHOTO_FRAME.x+26} ${PHOTO_FRAME.y+482}h${PHOTO_FRAME.w-52}" fill="none" stroke="rgba(36,58,99,0.10)" stroke-width="2.2" stroke-linecap="round"/>
           <path d="M170 282h110" stroke="rgba(49,76,122,0.68)" stroke-width="2.4" stroke-linecap="round"/>
           <path d="M720 282h110" stroke="rgba(49,76,122,0.68)" stroke-width="2.4" stroke-linecap="round"/>
           <path d="M170 760h110" stroke="rgba(181,160,116,0.34)" stroke-width="2" stroke-linecap="round"/>
@@ -670,8 +674,8 @@ function resetState() {
   state.name = 'タンキュ';
   state.desc = 'どんな謎でも解き明かさずにはいられない。';
   state.statLabels = { ...defaultLabels };
-  state.stats = { wisdom:3, bravery:3, empathy:3, creation:3, cooperation:3, action:3 };
-  state.displayStats = { wisdom:3, bravery:3, empathy:3, creation:3, cooperation:3, action:3 };
+  state.stats = { wisdom:3, bravery:3, empathy:3, action:3, cooperation:3, creation:3, guts:3, bedhead:3 };
+  state.displayStats = { wisdom:3, bravery:3, empathy:3, action:3, cooperation:3, creation:3, guts:3, bedhead:3 };
   state.zoom = 1;
   state.rotation = 0;
   state.offsetX = 0;
