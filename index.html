@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>守護霊カードメーカー</title>
+<style>
+:root{
+  --bg:#ece8df;
+  --ui-panel:#f8f6f1;
+  --ui-panel2:#ffffff;
+  --ui-line:#d8d0c4;
+  --ui-text:#5d5449;
+  --ui-sub:#8f8578;
+  --accent:#88d2db;
+  --accent2:#5e87c5;
+  --navy:#243a63;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:"Hiragino Sans","Yu Gothic","Meiryo",system-ui,sans-serif;
+  color:var(--ui-text);
+  background:
+    radial-gradient(circle at 14% 0%, rgba(136,210,219,.18), transparent 24%),
+    radial-gradient(circle at 88% 12%, rgba(71,97,147,.08), transparent 22%),
+    linear-gradient(180deg, #efebe3 0%, #e9e5dc 100%);
+}
+.app{
+  width:min(1000px, calc(100vw - 24px));
+  height:min(600px, calc(100vh - 24px));
+  margin:12px auto;
+  display:grid;
+  grid-template-columns:320px minmax(0,1fr);
+  gap:18px;
+  padding:12px;
+}
+.controls{
+  min-height:0;
+  overflow:auto;
+  padding:16px;
+  border-radius:28px;
+  background:linear-gradient(180deg, rgba(255,255,255,.74), rgba(248,245,239,.92));
+  border:1px solid rgba(214,204,191,.8);
+  box-shadow:0 14px 36px rgba(127,117,101,.10), inset 0 1px 0 rgba(255,255,255,.8);
+}
+.controls::-webkit-scrollbar{width:10px}
+.controls::-webkit-scrollbar-thumb{background:#d5cec1;border-radius:999px}
+.controls::-webkit-scrollbar-track{background:transparent}
+.field-group{margin-bottom:14px}
+label,.group-title{
+  display:block;
+  margin-bottom:6px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.06em;
+  color:#876f53;
+}
+input[type="text"], textarea{
+  width:100%;
+  border:1px solid #d7cfc3;
+  border-radius:20px;
+  background:linear-gradient(180deg, rgba(255,255,255,.88), rgba(245,241,235,.94));
+  color:var(--ui-text);
+  padding:14px 16px;
+  font-size:14px;
+  outline:none;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.8);
+}
+input[type="text"]:focus, textarea:focus{
+  border-color:#b7dfe4;
+  box-shadow:0 0 0 3px rgba(136,210,219,.16), inset 0 1px 2px rgba(255,255,255,.8);
+}
+textarea{min-height:156px;resize:none;line-height:1.6}
+input[type="file"]{
+  width:100%;
+  padding:10px;
+  border:1px dashed #d8cfc2;
+  border-radius:18px;
+  background:rgba(255,255,255,.46);
+  color:var(--ui-sub);
+}
+.range-wrap{margin-bottom:10px}
+.range-head{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:12px;color:var(--ui-text);margin-bottom:5px;
+}
+input[type="range"]{width:100%;accent-color:#86cfd4}
+.stats-editor{
+  border:1px solid rgba(207,198,184,.78);
+  border-radius:24px;
+  padding:12px 12px 8px;
+  background:linear-gradient(180deg, rgba(255,255,255,.58), rgba(247,243,237,.9));
+}
+.stat-row{
+  display:grid;
+  grid-template-columns:96px minmax(0,1fr) 20px;
+  gap:8px;align-items:center;min-height:44px;margin-bottom:6px;
+}
+.stat-name{
+  width:100%;padding:9px 10px;font-size:12px;border-radius:18px;
+  border:1px solid #d7cfc3;background:rgba(255,255,255,.72);color:var(--ui-text)
+}
+.spirit-dots{display:flex;gap:6px;align-items:center}
+.spirit-dot{
+  width:24px;height:24px;border-radius:50%;
+  border:1px solid rgba(170,185,185,.45);
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255,255,255,.94), rgba(255,255,255,.30) 26%, rgba(158,228,233,.08) 28%),
+    linear-gradient(180deg, rgba(255,255,255,.95), rgba(232,236,233,.82));
+  box-shadow: inset 0 -2px 3px rgba(153,177,177,.16), 0 1px 2px rgba(130,120,100,.10);
+  cursor:pointer;transition:transform .16s ease, box-shadow .16s ease;
+}
+.spirit-dot:hover{transform:translateY(-1px) scale(1.05)}
+.spirit-dot.tap{animation:dotBounce .34s cubic-bezier(.2,.85,.2,1)}
+@keyframes dotBounce{0%{transform:scale(1)}45%{transform:scale(1.18)}100%{transform:scale(1)}}
+.spirit-dot.active{
+  border-color:rgba(89,151,164,.78);
+  background:
+    radial-gradient(circle at 30% 26%, rgba(255,255,255,.96), rgba(255,255,255,.38) 24%, rgba(181,237,240,.20) 26%),
+    linear-gradient(180deg, rgba(185,236,240,.98), rgba(132,207,212,.86));
+  box-shadow: inset 0 -2px 4px rgba(70,145,150,.22), 0 0 0 2px rgba(255,255,255,.38), 0 5px 12px rgba(117,191,196,.25);
+}
+.stat-value{text-align:right;font-size:14px;color:#8f7b5d}
+.actions{display:flex;gap:8px;margin-top:12px}
+button{
+  appearance:none;border:none;border-radius:16px;padding:11px 14px;font-size:13px;font-weight:700;cursor:pointer;
+  color:#fff;background:linear-gradient(180deg, #a2dbe0, #84cdd3);
+  box-shadow:0 10px 18px rgba(132,205,211,.24), inset 0 1px 0 rgba(255,255,255,.55);
+}
+button.secondary{
+  color:var(--ui-text);background:linear-gradient(180deg, #fff, #f2eee7);
+  border:1px solid #dbd2c6;box-shadow:0 8px 16px rgba(130,120,100,.08), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.preview-area{min-width:0;display:flex;justify-content:center;align-items:flex-start}
+.preview-shell{width:min(100%, 680px)}
+.preview-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.preview-head .title{font-size:15px;font-weight:700;color:#6b5a46;letter-spacing:.06em}
+.card-stage{
+  width:100%;aspect-ratio:5 / 7;max-height:540px;border-radius:36px;
+  background:linear-gradient(180deg, rgba(255,255,255,.45), rgba(246,242,235,.82));
+  padding:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.42), 0 18px 44px rgba(133,120,101,.12);
+}
+#cardSvg{width:100%;height:100%;display:block}
+.helper{font-size:11px;color:#8f8578;margin-top:6px}
+@media (max-width: 900px){
+  body{overflow:auto}
+  .app{width:min(100%, calc(100vw - 16px));height:auto;grid-template-columns:1fr;margin:8px auto;padding:8px}
+  .preview-shell{width:min(100%, 640px)}
+  .controls{overflow:visible}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="controls">
+    <section class="field-group">
+      <label for="nameInput">守護霊の名前</label>
+      <input id="nameInput" type="text" maxlength="24" value="タンキュ">
+    </section>
+
+    <section class="field-group">
+      <label for="descInput">説明</label>
+      <textarea id="descInput" maxlength="80">どんな謎でも解き明かさずにはいられない。</textarea>
+    </section>
+
+    <section class="field-group">
+      <label for="imageInput">作品写真</label>
+      <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp">
+    </section>
+
+    <section class="field-group">
+      <div class="range-wrap">
+        <div class="range-head"><span>拡大</span><span id="zoomValue">1.00</span></div>
+        <input id="zoomRange" type="range" min="0.6" max="2.4" step="0.01" value="1">
+      </div>
+      <div class="range-wrap">
+        <div class="range-head"><span>回転</span><span id="rotationValue">0°</span></div>
+        <input id="rotationRange" type="range" min="-20" max="20" step="1" value="0">
+      </div>
+    </section>
+
+    <section class="field-group">
+      <div id="statsEditor" class="stats-editor"></div>
+    </section>
+
+    <div class="actions">
+      <button id="saveBtn">PNGで保存</button>
+      <button id="resetBtn" class="secondary">初期値に戻す</button>
+    </div>
+  </aside>
+
+  <main class="preview-area">
+    <div class="preview-shell">
+      <div class="preview-head">
+        <div class="title">カードプレビュー</div>
+      </div>
+      <div class="card-stage" id="cardStage">
+        <svg id="cardSvg" viewBox="0 0 1000 1400" xmlns="http://www.w3.org/2000/svg" aria-label="守護霊カードプレビュー"></svg>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const statsKeys = ['wisdom','bravery','empathy','creation','cooperation','action'];
+const defaultLabels = {
+  wisdom: '知恵',
+  bravery: '勇気',
+  empathy: '共感',
+  creation: '創造',
+  cooperation: '協力',
+  action: '行動',
+};
+const CENTER_X = 500;
+const PHOTO_FRAME = { x: 150, y: 300, w: 700, h: 500 };
+
+const state = {
+  name: 'タンキュ',
+  desc: 'どんな謎でも解き明かさずにはいられない。',
+  statLabels: { ...defaultLabels },
+  stats: { wisdom:3, bravery:3, empathy:3, creation:3, cooperation:3, action:3 },
+  displayStats: { wisdom:3, bravery:3, empathy:3, creation:3, cooperation:3, action:3 },
+  imageDataUrl: '',
+  zoom: 1,
+  rotation: 0,
+  offsetX: 0,
+  offsetY: 0,
+  dragging: false,
+  dragStartX: 0,
+  dragStartY: 0,
+  dragBaseX: 0,
+  dragBaseY: 0,
+};
+
+const els = {
+  nameInput: document.getElementById('nameInput'),
+  descInput: document.getElementById('descInput'),
+  imageInput: document.getElementById('imageInput'),
+  zoomRange: document.getElementById('zoomRange'),
+  rotationRange: document.getElementById('rotationRange'),
+  zoomValue: document.getElementById('zoomValue'),
+  rotationValue: document.getElementById('rotationValue'),
+  statsEditor: document.getElementById('statsEditor'),
+  saveBtn: document.getElementById('saveBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  cardSvg: document.getElementById('cardSvg'),
+  cardStage: document.getElementById('cardStage'),
+};
+
+function escapeXml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+}
+function clamp(n, min, max) { return Math.min(max, Math.max(min, n)); }
+
+function centeredX(width){ return CENTER_X - width / 2; }
+
+function curvedPlatePath(x, y, w, h, inset = 18, sag = 10){
+  const x2 = x + w;
+  const y2 = y + h;
+  return `M ${x+inset} ${y}
+          Q ${CENTER_X} ${y+sag} ${x2-inset} ${y}
+          L ${x2} ${y+18}
+          L ${x2} ${y2-18}
+          Q ${CENTER_X} ${y2-sag} ${x} ${y2-18}
+          L ${x} ${y+18}
+          Z`;
+}
+
+function wrapTextByCount(text, maxPerLine = 24, maxLines = 2) {
+  const normalized = (text || '').replace(/\r\n/g, '\n').trim();
+  if (!normalized) return ['どんな謎でも解き明かさずにはいられない。'];
+  const hardLines = normalized.split('\n').flatMap(line => {
+    const parts = [];
+    let current = '';
+    for (const ch of line) {
+      current += ch;
+      if ([...current].length >= maxPerLine) {
+        parts.push(current);
+        current = '';
+      }
+    }
+    if (current) parts.push(current);
+    return parts.length ? parts : [''];
+  });
+  return hardLines.slice(0, maxLines);
+}
+
+function getNameFontSize(name) {
+  const len = [...name].length;
+  if (len <= 8) return 60;
+  if (len <= 12) return 52;
+  if (len <= 16) return 44;
+  return 38;
+}
+function getLabelFontSize(label) {
+  const len = [...label].length;
+  if (len <= 4) return 15;
+  if (len <= 6) return 13;
+  if (len <= 8) return 11.5;
+  return 10.5;
+}
+function pointOnCircle(cx, cy, r, angleDeg) {
+  const rad = (angleDeg * Math.PI) / 180;
+  return { x: cx + Math.cos(rad) * r, y: cy + Math.sin(rad) * r };
+}
+function getRadarGeometry() {
+  return {
+    cx: 330,
+    cy: 182,
+    maxR: 110,
+    angles: [-90, -30, 30, 90, 150, 210],
+    labels: [
+      state.statLabels.wisdom || '知恵',
+      state.statLabels.bravery || '勇気',
+      state.statLabels.empathy || '共感',
+      state.statLabels.action || '行動',
+      state.statLabels.cooperation || '協力',
+      state.statLabels.creation || '創造',
+    ],
+    keys: ['wisdom','bravery','empathy','action','cooperation','creation'],
+  };
+}
+function radarPolygonPoints(stats = state.displayStats) {
+  const { cx, cy, maxR, angles, keys } = getRadarGeometry();
+  return keys.map((key, i) => {
+    const value = clamp(stats[key] || 1, 1, 5);
+    const p = pointOnCircle(cx, cy, maxR * (value / 5), angles[i]);
+    return `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+  }).join(' ');
+}
+
+function buildRadarSvg() {
+  const { cx, cy, maxR, angles, labels, keys } = getRadarGeometry();
+  let grid = '';
+  for (let step = 1; step <= 5; step += 1) {
+    const r = maxR * (step / 5);
+    const points = angles.map(a => {
+      const p = pointOnCircle(cx, cy, r, a);
+      return `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+    }).join(' ');
+    grid += `<polygon points="${points}" fill="none" stroke="${step === 5 ? 'rgba(53,74,112,0.42)' : 'rgba(114,179,196,0.20)'}" stroke-width="${step === 5 ? 1.8 : 1.1}" />`;
+  }
+
+  let axes = '';
+  let labelsSvg = '';
+  angles.forEach((a, i) => {
+    const outer = pointOnCircle(cx, cy, maxR, a);
+    const labelPoint = pointOnCircle(cx, cy, maxR + 36, a);
+    const anchor = Math.abs(labelPoint.x - cx) < 8 ? 'middle' : labelPoint.x > cx ? 'start' : 'end';
+    axes += `<line x1="${cx}" y1="${cy}" x2="${outer.x}" y2="${outer.y}" stroke="rgba(71,96,138,0.30)" stroke-width="1.1" />`;
+    labelsSvg += `<text x="${labelPoint.x}" y="${labelPoint.y + 5}" text-anchor="${anchor}" font-size="14.5" fill="#425674">${escapeXml(labels[i] || '')}</text>`;
+  });
+
+  const polygonPoints = radarPolygonPoints(state.displayStats);
+  const markers = keys.map((key, index) => {
+    const value = clamp(state.displayStats[key] || 1, 1, 5);
+    const pt = pointOnCircle(cx, cy, maxR * (value / 5), angles[index]);
+    return `<circle cx="${pt.x}" cy="${pt.y}" r="4.2" fill="#6aaec0" opacity="0.96" />`;
+  }).join('');
+
+  return `
+    <g>
+      <path d="${curvedPlatePath(18,18,624,340,24,10)}" fill="rgba(255,255,255,0.86)" stroke="rgba(202,193,183,0.76)" stroke-width="1.1" />
+      <path d="M44 32c62 -16 502 -16 572 0" fill="none" stroke="rgba(59,84,122,0.14)" stroke-width="2.1" />
+      <path d="M56 48h548" fill="none" stroke="rgba(120,201,214,0.18)" stroke-width="3" />
+      <path d="M60 328h540" fill="none" stroke="rgba(59,84,122,0.08)" stroke-width="2.2" />
+      <text x="${cx}" y="14" text-anchor="middle" font-size="24" fill="#31496f" letter-spacing="0.14em">GUARDIAN STATUS</text>
+      <circle cx="${cx}" cy="${cy}" r="${maxR + 22}" fill="rgba(255,255,255,0.24)" stroke="rgba(79,101,137,0.14)" stroke-width="1.2" />
+      <circle cx="${cx}" cy="${cy}" r="${maxR + 12}" fill="none" stroke="rgba(160,216,222,0.20)" stroke-width="1.3" />
+      ${grid}
+      ${axes}
+      <polygon class="radar-poly" points="${polygonPoints}" fill="rgba(82,145,199,0.22)" stroke="rgba(61,103,168,0.76)" stroke-width="2.4" />
+      ${markers}
+      <circle cx="${cx}" cy="${cy}" r="3.5" fill="#4c5e7b" />
+      ${labelsSvg}
+    </g>
+  `;
+}
+
+function buildPhotoBlock() {
+  if (!state.imageDataUrl) {
+    return `
+      <rect x="${PHOTO_FRAME.x}" y="${PHOTO_FRAME.y}" width="${PHOTO_FRAME.w}" height="${PHOTO_FRAME.h}" rx="24" fill="rgba(255,255,255,0.58)" />
+      <g opacity="0.78">
+        <path d="M266 360c72 -46 174 -54 288 -26" fill="none" stroke="rgba(181,160,116,0.30)" stroke-width="2.2"/>
+        <path d="M440 530l60-60 44 42 88-92 92 124" fill="none" stroke="rgba(125,194,201,0.74)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+        <circle cx="482" cy="442" r="72" fill="none" stroke="rgba(181,160,116,0.36)" stroke-width="4"/>
+      </g>
+      <text x="500" y="628" text-anchor="middle" font-size="33" fill="#5f5448">作品写真を配置</text>
+    `;
+  }
+  const x = CENTER_X + state.offsetX;
+  const y = 550 + state.offsetY;
+  const w = PHOTO_FRAME.w * state.zoom;
+  const h = PHOTO_FRAME.h * state.zoom;
+  return `
+    <g clip-path="url(#photoClip)">
+      <image href="${state.imageDataUrl}" x="${x - w / 2}" y="${y - h / 2}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice" transform="rotate(${state.rotation} ${x} ${y})" />
+    </g>
+  `;
+}
+
+function renderCard() {
+  const name = (state.name || '').trim() || '守護霊の名前';
+  const descLines = wrapTextByCount(state.desc, 22, 2);
+  const nameSize = getNameFontSize(name);
+
+  const nameW = 760, nameX = centeredX(nameW);
+  const photoOuterW = 768, photoOuterX = centeredX(photoOuterW);
+  const photoInnerW = 744, photoInnerX = centeredX(photoInnerW);
+  const radarW = 660, radarX = centeredX(radarW);
+  const descW = 700, descX = centeredX(descW);
+  const bandW = 608, bandX = centeredX(bandW);
+
+  els.cardSvg.innerHTML = `
+    <defs>
+      <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#fbf8f2"/>
+        <stop offset="34%" stop-color="#f4eee3"/>
+        <stop offset="68%" stop-color="#ece5d8"/>
+        <stop offset="100%" stop-color="#e3dacb"/>
+      </linearGradient>
+      <linearGradient id="navySheen" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="rgba(31,50,84,0.22)"/>
+        <stop offset="50%" stop-color="rgba(61,91,135,0.05)"/>
+        <stop offset="100%" stop-color="rgba(31,50,84,0.18)"/>
+      </linearGradient>
+      <linearGradient id="navyLine" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="rgba(34,53,82,0.22)"/>
+        <stop offset="48%" stop-color="rgba(61,91,135,0.62)"/>
+        <stop offset="100%" stop-color="rgba(34,53,82,0.22)"/>
+      </linearGradient>
+      <linearGradient id="skyGlass" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="rgba(194,236,241,0.58)"/>
+        <stop offset="100%" stop-color="rgba(255,255,255,0.72)"/>
+      </linearGradient>
+      <linearGradient id="goldLine" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#a88b58"/>
+        <stop offset="48%" stop-color="#e1cfab"/>
+        <stop offset="100%" stop-color="#bea169"/>
+      </linearGradient>
+      <linearGradient id="plateGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#fffefa"/>
+        <stop offset="55%" stop-color="#f6f1e7"/>
+        <stop offset="100%" stop-color="#efe7db"/>
+      </linearGradient>
+      <linearGradient id="navyAccent" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="rgba(36,58,99,0.0)"/>
+        <stop offset="0.18" stop-color="rgba(36,58,99,0.38)"/>
+        <stop offset="0.5" stop-color="rgba(101,136,196,0.30)"/>
+        <stop offset="0.82" stop-color="rgba(36,58,99,0.38)"/>
+        <stop offset="1" stop-color="rgba(36,58,99,0.0)"/>
+      </linearGradient>
+      <linearGradient id="goldAccent" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="rgba(168,139,88,0.0)"/>
+        <stop offset="0.18" stop-color="rgba(168,139,88,0.55)"/>
+        <stop offset="0.5" stop-color="rgba(225,207,171,0.40)"/>
+        <stop offset="0.82" stop-color="rgba(168,139,88,0.55)"/>
+        <stop offset="1" stop-color="rgba(168,139,88,0.0)"/>
+      </linearGradient>
+      <linearGradient id="frameGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="rgba(255,255,255,0.98)"/>
+        <stop offset="100%" stop-color="rgba(239,233,223,0.96)"/>
+      </linearGradient>
+      <pattern id="dotGrid" width="120" height="120" patternUnits="userSpaceOnUse">
+        <circle cx="60" cy="60" r="1.6" fill="rgba(187,176,160,0.16)"/>
+      </pattern>
+      <clipPath id="cardClip">
+        <rect x="0" y="0" width="1000" height="1400" rx="42" ry="42"/>
+      </clipPath>
+      <clipPath id="photoClip">
+        <rect x="${PHOTO_FRAME.x}" y="${PHOTO_FRAME.y}" width="${PHOTO_FRAME.w}" height="${PHOTO_FRAME.h}" rx="24" ry="24"/>
+      </clipPath>
+      <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="160%">
+        <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="rgba(131,117,95,0.18)" />
+      </filter>
+      <filter id="softShadow" x="-20%" y="-20%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="rgba(131,117,95,0.10)" />
+      </filter>
+    </defs>
+    <style>
+      .radar-poly{transform-origin:330px 182px;animation:radarPop 420ms cubic-bezier(.2,.85,.2,1)}
+      @keyframes radarPop{
+        0%{opacity:.2;transform:scale(.82)}
+        55%{opacity:.86;transform:scale(1.06)}
+        100%{opacity:1;transform:scale(1)}
+      }
+    </style>
+    <g filter="url(#cardShadow)">
+      <g clip-path="url(#cardClip)">
+        <rect x="0" y="0" width="1000" height="1400" rx="42" fill="url(#bgGrad)"/>
+        <rect x="0" y="0" width="1000" height="1400" rx="42" fill="url(#dotGrid)" opacity="0.55"/>
+        <rect x="0" y="0" width="1000" height="1400" rx="42" fill="url(#skyGlass)" opacity="0.12"/>
+        <rect x="0" y="0" width="1000" height="1400" rx="42" fill="url(#navySheen)" opacity="0.78"/>
+
+        <rect x="0" y="0" width="1000" height="130" fill="rgba(34,53,82,0.10)"/>
+        <rect x="0" y="1308" width="1000" height="116" fill="rgba(34,53,82,0.09)"/>
+        <path d="M-24 118c180 -66 410 -74 672 -18c104 22 222 24 376 -8" fill="none" stroke="rgba(89,126,188,0.28)" stroke-width="16" stroke-linecap="round"/>
+        <path d="M-30 154c182 -62 406 -62 664 -8c130 28 254 30 392 8" fill="none" stroke="rgba(255,255,255,0.74)" stroke-width="24" stroke-linecap="round"/>
+        <path d="M-30 190c176 -54 396 -54 652 -4c146 28 270 28 404 4" fill="none" stroke="rgba(34,53,82,0.14)" stroke-width="8" stroke-linecap="round"/>
+        <path d="M92 96h816" fill="none" stroke="url(#navyLine)" stroke-width="2.4" opacity="0.78"/>
+        <path d="M92 1304h816" fill="none" stroke="url(#navyLine)" stroke-width="2.4" opacity="0.56"/>
+
+        <rect x="22" y="22" width="956" height="1356" rx="38" fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="3"/>
+        <rect x="36" y="36" width="928" height="1328" rx="34" fill="none" stroke="url(#goldLine)" stroke-width="2.5"/>
+        <rect x="44" y="44" width="912" height="1312" rx="32" fill="none" stroke="rgba(34,53,82,0.18)" stroke-width="1.2"/>
+        <rect x="52" y="52" width="896" height="1296" rx="30" fill="none" stroke="rgba(207,198,184,0.56)" stroke-width="1.6"/>
+        <path d="M116 86h768" fill="none" stroke="url(#navyAccent)" stroke-width="3.6" stroke-linecap="round" opacity="0.92"/>
+        <path d="M138 72h724" fill="none" stroke="url(#goldAccent)" stroke-width="1.8" stroke-linecap="round" opacity="0.75"/>
+        <path d="M116 1278h768" fill="none" stroke="url(#goldAccent)" stroke-width="3.2" stroke-linecap="round" opacity="0.78"/>
+        <path d="M138 1294h724" fill="none" stroke="url(#navyAccent)" stroke-width="1.8" stroke-linecap="round" opacity="0.62"/>
+        <path d="M146 108c74 -18 238 -22 354 -10" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M854 108c-74 -18 -238 -22 -354 -10" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M428 60c20 -8 124 -8 144 0v18c-18 6 -126 6 -144 0z" fill="rgba(255,255,255,0.32)" stroke="rgba(168,139,88,0.44)" stroke-width="1.1"/>
+        <path d="M442 68h116" fill="none" stroke="url(#navyAccent)" stroke-width="1.6" stroke-linecap="round" opacity="0.8"/>
+        <circle cx="500" cy="69" r="3.2" fill="rgba(168,139,88,0.72)"/>
+        <path d="M428 1318c20 8 124 8 144 0v-18c-18 -6 -126 -6 -144 0z" fill="rgba(255,255,255,0.22)" stroke="rgba(168,139,88,0.34)" stroke-width="1.1"/>
+        <path d="M442 1310h116" fill="none" stroke="url(#goldAccent)" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+        <circle cx="500" cy="1309" r="3.2" fill="rgba(49,76,122,0.62)"/>
+
+        <path d="M176 232v1030" fill="none" stroke="rgba(49,76,122,0.07)" stroke-width="2"/>
+        <path d="M824 232v1030" fill="none" stroke="rgba(49,76,122,0.07)" stroke-width="2"/>
+        <path d="M198 840c126 12 478 12 604 0" fill="none" stroke="rgba(49,76,122,0.14)" stroke-width="2.2"/>
+        <path d="M198 1200c126 12 478 12 604 0" fill="none" stroke="rgba(49,76,122,0.12)" stroke-width="2"/>
+
+        <g filter="url(#softShadow)">
+          <path d="${curvedPlatePath(nameX, 122, nameW, 96, 36, 10)}" fill="url(#plateGrad)" stroke="rgba(207,198,184,0.74)" stroke-width="1.4"/>
+          <path d="M${nameX+30} 132c72 -14 628 -14 700 0" fill="none" stroke="rgba(49,76,122,0.24)" stroke-width="2"/>
+          <path d="M${nameX+22} 152c96 -8 620 -8 716 0" fill="none" stroke="rgba(135,205,215,0.18)" stroke-width="3"/>
+          <path d="M${nameX+50} 172h104" stroke="rgba(181,160,116,0.52)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M${nameX+606} 172h104" stroke="rgba(181,160,116,0.52)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="${nameX+174}" cy="172" r="4.2" fill="rgba(181,160,116,0.72)"/>
+          <circle cx="${nameX+586}" cy="172" r="4.2" fill="rgba(181,160,116,0.72)"/>
+          <text x="${CENTER_X}" y="184" text-anchor="middle" font-size="${nameSize}" font-weight="700" fill="#2f4368">${escapeXml(name)}</text>
+        </g>
+
+        <g filter="url(#softShadow)">
+          <path d="${curvedPlatePath(photoOuterX, 252, photoOuterW, 584, 30, 10)}" fill="url(#frameGrad)" stroke="rgba(207,198,184,0.72)" stroke-width="1.8"/>
+          <rect x="${photoInnerX}" y="264" width="${photoInnerW}" height="544" rx="30" fill="rgba(255,255,255,0.50)" stroke="rgba(255,255,255,0.72)" stroke-width="1.6"/>
+          <rect x="${PHOTO_FRAME.x}" y="${PHOTO_FRAME.y}" width="${PHOTO_FRAME.w}" height="${PHOTO_FRAME.h}" rx="24" fill="rgba(243,237,229,0.88)" stroke="rgba(210,200,187,0.76)" stroke-width="1.6"/>
+          <rect x="${PHOTO_FRAME.x+4}" y="${PHOTO_FRAME.y+4}" width="${PHOTO_FRAME.w-8}" height="${PHOTO_FRAME.h-8}" rx="21" fill="rgba(36,58,99,0.06)"/>
+          <rect x="${PHOTO_FRAME.x+8}" y="${PHOTO_FRAME.y+8}" width="${PHOTO_FRAME.w-16}" height="${PHOTO_FRAME.h-16}" rx="18" fill="none" stroke="rgba(48,70,108,0.34)" stroke-width="1.2"/>
+          <rect x="${PHOTO_FRAME.x+16}" y="${PHOTO_FRAME.y+16}" width="${PHOTO_FRAME.w-32}" height="${PHOTO_FRAME.h-32}" rx="14" fill="none" stroke="rgba(215,193,151,0.34)" stroke-width="1"/>
+          ${buildPhotoBlock()}
+          <rect x="${PHOTO_FRAME.x}" y="${PHOTO_FRAME.y}" width="${PHOTO_FRAME.w}" height="${PHOTO_FRAME.h}" rx="24" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.34)" stroke-width="0.8"/>
+          <path d="M${PHOTO_FRAME.x+24} ${PHOTO_FRAME.y+20}h${700-48}" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M${PHOTO_FRAME.x+26} ${PHOTO_FRAME.y+482}h${700-52}" fill="none" stroke="rgba(36,58,99,0.10)" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M170 282h110" stroke="rgba(49,76,122,0.68)" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M720 282h110" stroke="rgba(49,76,122,0.68)" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M170 760h110" stroke="rgba(181,160,116,0.34)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M720 760h110" stroke="rgba(181,160,116,0.34)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M154 302c92 -12 600 -12 692 0" fill="none" stroke="rgba(135,205,215,0.18)" stroke-width="2.8"/>
+          <path d="M140 314c64 -34 656 -34 720 0" fill="none" stroke="rgba(49,76,122,0.10)" stroke-width="6"/>
+        </g>
+
+        <g transform="translate(${radarX} 846)" filter="url(#softShadow)">
+          ${buildRadarSvg()}
+        </g>
+
+        <g filter="url(#softShadow)">
+          <path d="${curvedPlatePath(descX, 1210, descW, 132, 24, 9)}" fill="rgba(255,255,255,0.82)" stroke="rgba(207,198,184,0.70)" stroke-width="1.3"/>
+          <path d="M${descX+28} 1228c82 -8 480 -8 644 0" fill="none" stroke="rgba(49,76,122,0.24)" stroke-width="2"/>
+          <path d="M${descX+28} 1242h644" fill="none" stroke="rgba(135,205,215,0.24)" stroke-width="3" />
+          <text x="${descX+44}" y="1272" text-anchor="start" font-size="27" fill="#4d5c76">${escapeXml(descLines[0] || '')}</text>
+          <text x="${descX+44}" y="1284" text-anchor="start" font-size="27" fill="#4d5c76">${escapeXml(descLines[1] || '')}</text>
+        </g>
+
+        <g>
+          <path d="M150 1340c54 8 138 10 350 10c212 0 296 -2 350 -10" fill="none" stroke="rgba(61,91,135,0.16)" stroke-width="2"/>
+          <path d="M178 1362c62 -8 644 -8 644 0" fill="none" stroke="rgba(82,145,199,0.22)" stroke-width="8" stroke-linecap="round"/>
+          <rect x="${bandX}" y="1352" width="${bandW}" height="28" rx="12" fill="rgba(255,255,255,0.72)" stroke="rgba(207,198,184,0.46)" stroke-width="1"/>
+          <text x="${CENTER_X}" y="1371" text-anchor="middle" font-size="18" fill="#41567b" letter-spacing="0.20em">SCHOOL SPIRIT SERIES</text>
+        </g>
+      </g>
+    </g>
+  `;
+  applyPhotoDragCursor();
+}
+
+let statsAnimationFrame = null;
+function animateStatsToTarget() {
+  if (statsAnimationFrame) cancelAnimationFrame(statsAnimationFrame);
+  const tick = () => {
+    let moving = false;
+    Object.keys(state.stats).forEach((key) => {
+      const target = state.stats[key];
+      const current = state.displayStats[key];
+      const next = current + (target - current) * 0.26;
+      if (Math.abs(target - current) < 0.015) {
+        state.displayStats[key] = target;
+      } else {
+        state.displayStats[key] = next;
+        moving = true;
+      }
+    });
+    renderCard();
+    if (moving) statsAnimationFrame = requestAnimationFrame(tick);
+    else statsAnimationFrame = null;
+  };
+  tick();
+}
+
+function applyPhotoDragCursor() {
+  els.cardStage.style.cursor = state.imageDataUrl ? (state.dragging ? 'grabbing' : 'grab') : 'default';
+}
+function renderStatsEditor() {
+  els.statsEditor.innerHTML = '';
+  statsKeys.forEach(key => {
+    const row = document.createElement('div');
+    row.className = 'stat-row';
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.maxLength = 10;
+    nameInput.className = 'stat-name';
+    nameInput.value = state.statLabels[key];
+    nameInput.addEventListener('input', e => {
+      state.statLabels[key] = e.target.value.slice(0, 10);
+      renderCard();
+    });
+
+    const dotsWrap = document.createElement('div');
+    dotsWrap.className = 'spirit-dots';
+    for (let i=1;i<=5;i++){
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = `spirit-dot${i <= state.stats[key] ? ' active' : ''}`;
+      dot.addEventListener('click', () => {
+        state.stats[key] = i;
+        dot.classList.remove('tap');
+        void dot.offsetWidth;
+        dot.classList.add('tap');
+        renderStatsEditor();
+        animateStatsToTarget();
+      });
+      dotsWrap.appendChild(dot);
+    }
+
+    const value = document.createElement('div');
+    value.className = 'stat-value';
+    value.textContent = state.stats[key];
+
+    row.appendChild(nameInput);
+    row.appendChild(dotsWrap);
+    row.appendChild(value);
+    els.statsEditor.appendChild(row);
+  });
+}
+
+function syncUi() {
+  els.nameInput.value = state.name;
+  els.descInput.value = state.desc;
+  els.zoomRange.value = state.zoom;
+  els.rotationRange.value = state.rotation;
+  els.zoomValue.textContent = Number(state.zoom).toFixed(2);
+  els.rotationValue.textContent = `${state.rotation}°`;
+  renderStatsEditor();
+  renderCard();
+}
+function resetState() {
+  state.name = 'タンキュ';
+  state.desc = 'どんな謎でも解き明かさずにはいられない。';
+  state.statLabels = { ...defaultLabels };
+  state.stats = { wisdom:3, bravery:3, empathy:3, creation:3, cooperation:3, action:3 };
+  state.displayStats = { wisdom:3, bravery:3, empathy:3, creation:3, cooperation:3, action:3 };
+  state.zoom = 1;
+  state.rotation = 0;
+  state.offsetX = 0;
+  state.offsetY = 0;
+  state.imageDataUrl = '';
+  state.dragging = false;
+  els.imageInput.value = '';
+  syncUi();
+}
+function handleImageFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    state.imageDataUrl = reader.result;
+    state.offsetX = 0;
+    state.offsetY = 0;
+    renderCard();
+  };
+  reader.readAsDataURL(file);
+}
+
+async function exportPng() {
+  renderCard();
+  const serializer = new XMLSerializer();
+  const svgText = serializer.serializeToString(els.cardSvg);
+  const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+  const svgUrl = URL.createObjectURL(svgBlob);
+
+  try {
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = svgUrl;
+    });
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 1000;
+    canvas.height = 1400;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#f4efe4';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    const safeName = (state.name || 'school_spirit_series').replace(/[\\/:*?"<>|\s]+/g, '_');
+    const filename = `守護霊カード_${safeName}.png`;
+
+    const pngBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+    if (!pngBlob) throw new Error('PNG export failed');
+
+    const file = new File([pngBlob], filename, { type: 'image/png' });
+
+    if (navigator.share && navigator.canShare) {
+      try {
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: filename });
+          return;
+        }
+      } catch (err) {}
+    }
+
+    const pngUrl = URL.createObjectURL(pngBlob);
+    const a = document.createElement('a');
+    a.href = pngUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(pngUrl), 1500);
+  } catch (error) {
+    alert('保存に失敗しました。別のブラウザで開いて試してください。');
+  } finally {
+    URL.revokeObjectURL(svgUrl);
+  }
+}
+
+els.nameInput.addEventListener('input', e => { state.name = e.target.value; renderCard(); });
+els.descInput.addEventListener('input', e => { state.desc = e.target.value; renderCard(); });
+els.imageInput.addEventListener('change', e => { const [file] = e.target.files || []; handleImageFile(file); });
+els.zoomRange.addEventListener('input', e => {
+  state.zoom = Number(e.target.value);
+  els.zoomValue.textContent = Number(state.zoom).toFixed(2);
+  renderCard();
+});
+els.rotationRange.addEventListener('input', e => {
+  state.rotation = Number(e.target.value);
+  els.rotationValue.textContent = `${state.rotation}°`;
+  renderCard();
+});
+els.saveBtn.addEventListener('click', exportPng);
+els.resetBtn.addEventListener('click', resetState);
+
+els.cardStage.addEventListener('pointerdown', e => {
+  if (!state.imageDataUrl) return;
+  state.dragging = true;
+  state.dragStartX = e.clientX;
+  state.dragStartY = e.clientY;
+  state.dragBaseX = state.offsetX;
+  state.dragBaseY = state.offsetY;
+  els.cardStage.setPointerCapture(e.pointerId);
+  applyPhotoDragCursor();
+});
+els.cardStage.addEventListener('pointermove', e => {
+  if (!state.dragging) return;
+  const rect = els.cardStage.getBoundingClientRect();
+  const scale = 1000 / rect.width;
+  state.offsetX = clamp(state.dragBaseX + (e.clientX - state.dragStartX) * scale, -260, 260);
+  state.offsetY = clamp(state.dragBaseY + (e.clientY - state.dragStartY) * scale, -220, 220);
+  renderCard();
+});
+function stopDrag(e){
+  if (!state.dragging) return;
+  state.dragging = false;
+  try { els.cardStage.releasePointerCapture(e.pointerId); } catch {}
+  applyPhotoDragCursor();
+}
+els.cardStage.addEventListener('pointerup', stopDrag);
+els.cardStage.addEventListener('pointercancel', stopDrag);
+
+syncUi();
+</script>
+</body>
+</html>
