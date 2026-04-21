@@ -724,8 +724,10 @@ async function exportPng() {
     if (!pngBlob) throw new Error('PNG export failed');
 
     const file = new File([pngBlob], filename, { type: 'image/png' });
+    const isTouchLike = (navigator.maxTouchPoints || 0) > 0;
+    const isLikelyMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
 
-    if (navigator.share && navigator.canShare) {
+    if ((isTouchLike || isLikelyMobile) && navigator.share && navigator.canShare) {
       try {
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], title: filename });
