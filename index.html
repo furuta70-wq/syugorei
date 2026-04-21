@@ -422,6 +422,12 @@ function renderCard() {
   const descW = 760, descX = centeredX(descW);
   const bandW = 608, bandX = centeredX(bandW);
 
+  const descBlockChars = Math.max(...descLines.map(line => [...(line || '')].length), 0);
+  const descEstimatedWidth = Math.min(descW - 120, descBlockChars * 23.5);
+  const descTextX = Math.round(descX + (descW - descEstimatedWidth) / 2);
+  const descAccentX = descTextX - 22;
+  const descAccent2X = descTextX - 12;
+
   els.cardSvg.innerHTML = `
     <defs>
       <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
@@ -574,8 +580,8 @@ function renderCard() {
           <path d="${curvedPlatePath(descX, 1210, descW, 132, 24, 9)}" fill="rgba(255,255,255,0.82)" stroke="rgba(207,198,184,0.70)" stroke-width="1.3"/>
           <path d="M${descX+28} 1228c82 -8 480 -8 644 0" fill="none" stroke="rgba(49,76,122,0.24)" stroke-width="2"/>
           <path d="M${descX+28} 1242h644" fill="none" stroke="rgba(135,205,215,0.24)" stroke-width="3" />
-          <text x="${descX+44}" y="1272" text-anchor="start" font-size="27" fill="#4d5c76">${escapeXml(descLines[0] || '')}</text>
-          <text x="${descX+44}" y="1284" text-anchor="start" font-size="27" fill="#4d5c76">${escapeXml(descLines[1] || '')}</text>
+          <text x="${descTextX}" y="1268" text-anchor="start" font-size="24" fill="#4d5c76">${escapeXml(descLines[0] || '')}</text>
+          <text x="${descTextX}" y="1308" text-anchor="start" font-size="24" fill="#4d5c76">${escapeXml(descLines[1] || '')}</text>
         </g>
 
         <g>
