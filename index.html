@@ -235,6 +235,7 @@ const state = {
   dragStartY: 0,
   dragBaseX: 0,
   dragBaseY: 0,
+  isExporting: false,
 };
 
 const els = {
@@ -484,7 +485,10 @@ function renderCard() {
       </filter>
     </defs>
     <style>
-      .radar-poly{transform-origin:330px 182px;animation:radarPop 420ms cubic-bezier(.2,.85,.2,1)}
+      .radar-poly{
+        transform-origin:330px 182px;
+        animation:${state.isExporting ? 'none' : 'radarPop 420ms cubic-bezier(.2,.85,.2,1)'};
+      }
       @keyframes radarPop{
         0%{opacity:.2;transform:scale(.82)}
         55%{opacity:.86;transform:scale(1.06)}
@@ -690,6 +694,7 @@ function handleImageFile(file) {
 }
 
 async function exportPng() {
+  state.isExporting = true;
   renderCard();
   const serializer = new XMLSerializer();
   const svgText = serializer.serializeToString(els.cardSvg);
@@ -708,7 +713,7 @@ async function exportPng() {
     canvas.width = 1000;
     canvas.height = 1400;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#f4efe4';
+    ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
@@ -741,6 +746,8 @@ async function exportPng() {
     alert('保存に失敗しました。別のブラウザで開いて試してください。');
   } finally {
     URL.revokeObjectURL(svgUrl);
+    state.isExporting = false;
+    renderCard();
   }
 }
 
